@@ -6,12 +6,13 @@ public class animWalkAndJump : MonoBehaviour
 {
     Animator anim;
     int walk, jump, strike;
-    float moveSpeed = 3f;
-    float rotationSpeed = 500f;
-    float strikeForce = 10f;
-    float waitStrike = 3f;
-    float waitJump = 3f;
-    float jumpPower = 5f;
+    public float moveSpeed = 3f;
+    public float rotationSpeed = 500f;
+    public float strikeForce = 10f;
+    public float jumpPower = 5f;
+    private float waitStrike = 3f;
+    private float waitJump = 3f;
+    
     Rigidbody rb;
     void Start()
     {
@@ -40,20 +41,29 @@ public class animWalkAndJump : MonoBehaviour
 
 
         //HAREKET 
-        float horizontalInput = Input.GetAxis("Horizontal");
+        //float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        Vector3 movement = new Vector3(horizontalInput, 0, verticalInput);
+        Vector3 movement = new Vector3(0, 0, verticalInput);
         movement.Normalize(); 
 
         bool startWalking = movement.magnitude > 0.1f; 
-        transform.Translate(movement * moveSpeed * Time.deltaTime);
 
-        if (!walking && startWalking)
+        if(waitJump > 1.3f && waitStrike > 1.1f) { 
+        transform.Translate(movement * moveSpeed *Time.deltaTime);
+        }
+
+        if (!walking && startWalking && verticalInput > 0)
         {
             anim.SetBool("walking", true);
-            
-            
+            anim.SetFloat("speed", 1f);
+                      
+        }
+        
+        else if(!walking && startWalking && verticalInput < 0)
+        {
+            anim.SetBool("walking", true);
+            anim.SetFloat("speed", -1f);
         }
 
         if (walking && !startWalking)
@@ -71,8 +81,9 @@ public class animWalkAndJump : MonoBehaviour
 
         if (waitJump >= 1.10f && waitJump <= 1.30f)
         {
-            rb.AddForce(Vector3.up * jumpPower);
+            rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
             Debug.Log("Jump happened");
+           
         }
 
         if (jumping && !startJumping)
@@ -90,7 +101,7 @@ public class animWalkAndJump : MonoBehaviour
         if(waitStrike >= 0.9f && waitStrike <1.1)
 
         {
-            rb.AddForce(transform.forward * strikeForce);
+            rb.AddForce(transform.forward * strikeForce, ForceMode.Impulse);
             
         }
 
